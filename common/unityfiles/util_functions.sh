@@ -288,7 +288,8 @@ set_vars() {
     local ROOTTYPE="MagiskSU"
   fi
   if ! $MAGISK || $SYSOVER; then
-    UNITY=""; INFO=/system/etc/$MODID-files
+    UNITY=""
+    [ -d /system/addon.d ] && INFO=/system/addon.d/$MODID-files || INFO=/system/etc/$MODID-files
     [ -L /system/vendor ] && { VEN=/vendor; $BOOTMODE && ORIGVEN=$ORIGDIR/vendor; }
     if ! $MAGISK; then
       # Determine system boot script type
@@ -588,6 +589,12 @@ unity_install() {
   fi
   rm -f $TMPDIR/system/placeholder
   cp_ch -r $TMPDIR/system $UNITY/system
+  # Install rom backup script
+  if [ "$INFO" == "/system/addon.d/$MODID-files" ]; then
+    ui_print "   Installing addon.d backup script..."
+    sed -i "s/MODID=.*/MODID=$MODID/" $TMPDIR/common/unityfiles/addon.sh
+    cp_ch -n $TMPDIR/common/unityfiles/addon.sh $UNITY/system/addon.d/$MODID.sh 0755
+  fi
   
   # Install scripts and module info
   cp_ch -n $TMPDIR/module.prop $MOD_VER
@@ -658,7 +665,7 @@ unity_upgrade() {
   if [ "$1" == "-s" ]; then
     mount -o rw,remount /system
     [ -L /system/vendor ] && mount -o rw,remount /vendor
-    INFO=/system/etc/$MODID-files
+    [ -d /system/addon.d ] && INFO=/system/addon.d/$MODID-files || INFO=/system/etc/$MODID-files
   fi
   [ -f "$TMPDIR/common/unity_upgrade.sh" ] && . $TMPDIR/common/unity_upgrade.sh
   unity_uninstall
@@ -679,6 +686,7 @@ comp_check() {
     MAGISK=true
     [ $MAGISK_VER_CODE -lt 18000 ] && require_new_magisk
     $SYSOVER && $BOOTMODE && { ui_print "   ! Magisk manager isn't supported!"; abort "   ! Install in recovery !"; }
+    $SYSOVER && { mount -o rw,remount /system; [ -L /system/vendor ] && mount -o rw,remount /vendor; }
   fi
 }
 
@@ -713,7 +721,7 @@ unity_main() {
     ui_print "  ! Mod present in ramdisk but not in system!"
     ui_print "  ! Ramdisk modifications will be uninstalled!"
     . $TMPDIR/addon/Ramdisk-Patcher/uninstall.sh
-  elif $MAGISK && ! $SYSOVER && [ -f "/system/etc/$MODID-files" ]; then
+  elif $MAGISK && ! $SYSOVER && [ -f "/system/addon.d/$MODID-files" -o -f "/system/etc/$MODID-files" ]; then
     ui_print "  ! Previous system override install detected!"
     ui_print "  ! Removing...!"
     $BOOTMODE && { ui_print "  ! Magisk manager isn't supported!"; abort "   ! Flash in TWRP !"; }
