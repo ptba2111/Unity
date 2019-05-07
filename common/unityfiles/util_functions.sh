@@ -544,7 +544,7 @@ unity_install() {
   done
   
   # Sepolicy
-  if [ -s $TMPDIR/common/sepolicy.sh ]; then
+  if ! $DIRSEPOL && [ -s $TMPDIR/common/sepolicy.sh ]; then
     [ "$NVBASE" == "/system/etc/init.d" -o "$MAGISK" == "true" ] && echo -n "magiskpolicy --live" >> $TMPDIR/common/service.sh || echo -n "supolicy --live" >> $TMPDIR/common/service.sh
     sed -i -e '/^#.*/d' -e '/^$/d' $TMPDIR/common/sepolicy.sh
     while read LINE; do
