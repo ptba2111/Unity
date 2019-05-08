@@ -260,12 +260,12 @@ device_check() {
 }
 
 api_check() {
-  local OPT=`getopt -o nx -- "$@"`
+  local OPT=`getopt -o nx -- "$@"` TAPI=$2
   eval set -- "$OPT"
   while true; do
     case "$1" in
-      -n) [ $API -lt $2 ] && abort "! Your system API of $API is less than the minimum api of $2! Aborting!"; shift;;
-      -x) [ $API -gt $2 ] && abort "! Your system API of $API is greater than the maximum api of $2! Aborting!"; shift;;
+      -n) [ $API -lt $TAPI ] && abort "! Your system API of $API is less than the minimum api of $2! Aborting!"; shift;;
+      -x) [ $API -gt $TAPI ] && abort "! Your system API of $API is greater than the maximum api of $2! Aborting!"; shift;;
       --) shift; break;;
     esac
   done
