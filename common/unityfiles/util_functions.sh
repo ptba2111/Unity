@@ -305,7 +305,7 @@ set_vars() {
       elif [ -f /system/xbin/su ]; then
         [ "$(grep "SuperSU" /system/xbin/su)" ] && { NVBASE=/system/su.d; ROOTTYPE="System SuperSU"; } || ROOTTYPE="LineageOS SU"
       fi
-      PROP=$NVBASE/$MODID-props.sh
+      PROP=$NVBASE/$MODID-props
     fi
   fi
   ui_print "- $ROOTTYPE detected"
@@ -481,6 +481,7 @@ uninstall_files() {
 }
 
 center_and_print() {
+  ui_print " "
   local NEW CHARS SPACES
   ui_print "    *******************************************"
   for i in name version author; do
@@ -612,11 +613,10 @@ unity_install() {
     cp -af $TMPDIR/module.prop $MODPATH/module.prop
     # Update info for magisk manager
     $BOOTMODE && { rm -f $MOUNTEDROOT/$MODID/remove; mktouch $MOUNTEDROOT/$MODID/update; cp_ch -n $TMPDIR/module.prop $MOUNTEDROOT/$MODID/module.prop; }
-  elif [ "$NVBASE" == "/system/etc/init.d" ]; then
+  elif [ "$NVBASE" == "/system/etc/init.d" ] && [ "$(ls -A $NVBASE/$MODID* 2>/dev/null)" ]; then
     ui_print " "
     ui_print "   ! This root method has no boot script support !"
     ui_print "   ! You will need to add init.d support !"
-    ui_print " "
   fi
 
   # Add blank line to end of all prop/script files if not already present
