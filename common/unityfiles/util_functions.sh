@@ -100,7 +100,7 @@ recovery_actions() {
 }
 
 recovery_cleanup() {
-  export PATH=$OLD_PATH
+  [ -z $OLD_PATH ] || export PATH=$OLD_PATH
   [ -z $OLD_LD_LIB ] || export LD_LIBRARY_PATH=$OLD_LD_LIB
   [ -z $OLD_LD_PRE ] || export LD_PRELOAD=$OLD_LD_PRE
   [ -z $OLD_LD_CFG ] || export LD_CONFIG_FILE=$OLD_LD_CFG
