@@ -547,6 +547,8 @@ unity_install() {
   done
   
   # Sepolicy
+  $DIRSEPOL && [ ! -d $TMPDIR/addon/Ramdisk-Patcher ] && { ui_print "   ! Ramdisk-Patcher required for direct"; ui_print "   ! sepolicy patching but isn't found!"; ui_print "   ! Will use boot script instead"; DIRSEPOL=false; }
+  
   if ! $DIRSEPOL && [ -s $TMPDIR/common/sepolicy.sh ]; then
     [ "$NVBASE" == "/system/etc/init.d" -o "$MAGISK" == "true" ] && echo -n "magiskpolicy --live" >> $TMPDIR/common/service.sh || echo -n "supolicy --live" >> $TMPDIR/common/service.sh
     sed -i -e '/^#.*/d' -e '/^$/d' $TMPDIR/common/sepolicy.sh
