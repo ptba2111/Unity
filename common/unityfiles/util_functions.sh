@@ -273,9 +273,6 @@ api_check() {
 
 set_vars() {
   echo $PATH | grep -q "^$UF/tools/$ARCH32" || export PATH=$UF/tools/$ARCH32:$PATH
-  SYS=/system; VEN=/system/vendor; ORIGVEN=$ORIGDIR/system/vendor; RD=$UF/boot/ramdisk; INFORD="$RD/$MODID-files"; SHEBANG="#!/system/bin/sh"
-  [ $API -lt 26 ] && DYNLIB=false
-  $DYNLIB && { LIBPATCH="\/vendor"; LIBDIR=$VEN; } || { LIBPATCH="\/system"; LIBDIR=/system; }  
   if $MAGISK; then
     imageless_magisk && MOUNTEDROOT=$NVBASE/modules || MOUNTEDROOT=$MAGISKTMP/img
     if $BOOTMODE; then
@@ -287,6 +284,10 @@ set_vars() {
     INFO="$MODPATH/$MODID-files"; PROP=$MODPATH/system.prop; UNITY="$MODPATH"
     local ROOTTYPE="MagiskSU"
   fi
+  $SYSTEM_ROOT && ORIGVEN=$ORIGDIR/system_root/system/vendor || ORIGVEN=$ORIGDIR/vendor
+  SYS=/system; VEN=/system/vendor; RD=$UF/boot/ramdisk; INFORD="$RD/$MODID-files"; SHEBANG="#!/system/bin/sh"
+  [ $API -lt 26 ] && DYNLIB=false
+  $DYNLIB && { LIBPATCH="\/vendor"; LIBDIR=$VEN; } || { LIBPATCH="\/system"; LIBDIR=/system; }  
   if ! $MAGISK || $SYSOVER; then
     UNITY=""
     [ -d /system/addon.d ] && INFO=/system/addon.d/$MODID-files || INFO=/system/etc/$MODID-files
