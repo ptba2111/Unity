@@ -594,7 +594,7 @@ unity_install() {
   if [ "$INFO" == "/system/addon.d/$MODID-files" ]; then
     ui_print "   Installing addon.d backup script..."
     sed -i "s/MODID=.*/MODID=$MODID/" $TMPDIR/common/unityfiles/addon.sh
-    cp_ch -n $TMPDIR/common/unityfiles/addon.sh $UNITY/system/addon.d/$MODID-unity.sh 0755
+    cp_ch -n $TMPDIR/common/unityfiles/addon.sh $UNITY/system/addon.d/98-$MODID-unity.sh 0755
   fi
   
   # Install scripts and module info
