@@ -284,7 +284,11 @@ set_vars() {
     INFO="$MODPATH/$MODID-files"; PROP=$MODPATH/system.prop; UNITY="$MODPATH"
     local ROOTTYPE="MagiskSU"
   fi
-  $SYSTEM_ROOT && ORIGVEN=$ORIGDIR/system_root/system/vendor || ORIGVEN=$ORIGDIR/vendor
+  if $SYSTEM_ROOT && [ ! -L /system/vendor ]; then
+    ORIGVEN=$ORIGDIR/system_root/system/vendor
+  else
+    ORIGVEN=$ORIGDIR/vendor
+  fi
   SYS=/system; VEN=/system/vendor; RD=$UF/boot/ramdisk; INFORD="$RD/$MODID-files"; SHEBANG="#!/system/bin/sh"
   [ $API -lt 26 ] && DYNLIB=false
   $DYNLIB && { LIBPATCH="\/vendor"; LIBDIR=$VEN; } || { LIBPATCH="\/system"; LIBDIR=/system; }  
