@@ -753,7 +753,7 @@ unity_main() {
   cleanup
 }
 
-SKIPMOUNT=false; SYSOVER=false; DEBUG=false; DYNLIB=false; SEPOLICY=false
+SKIPMOUNT=false; SYSOVER=false; DEBUG=false; DYNLIB=false; SEPOLICY=false; DIRSEPOL=false
 OIFS=$IFS; IFS=\|; 
 case $(echo $(basename "$ZIPFILE") | tr '[:upper:]' '[:lower:]') in
   *debug*) DEBUG=true;;
