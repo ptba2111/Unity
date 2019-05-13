@@ -40,7 +40,9 @@ is_mounted() {
 
 abort() {
   ui_print "$1"
+  $MAGISK && ! imageless_magisk && is_mounted $MOUNTPATH && unmount_magisk_img
   $BOOTMODE || recovery_cleanup
+  $DEBUG && debug_log
   exit 1
 }
 
@@ -112,6 +114,34 @@ recovery_cleanup() {
   umount -l /dev/random 2>/dev/null
 }
 
+debug_log() {
+  set +x
+  echo -e "***---Device Info---***" > /sdcard/$MODID-debug-tmp.log
+  echo -e "\n---Props---\n" >> /sdcard/$MODID-debug-tmp.log
+  getprop >> /sdcard/$MODID-debug-tmp.log
+  if $MAGISK; then
+    echo -e "\n\n***---Magisk Info---***" >> /sdcard/$MODID-debug-tmp.log
+    echo -e "\n---Magisk Version---\n\n$MAGISK_VER_CODE" >> /sdcard/$MODID-debug-tmp.log
+    imageless_magisk && { echo -e "\n---Installed Modules---\n" >> /sdcard/$MODID-debug-tmp.log;
+                                        ls $NVBASE/modules >> /sdcard/$MODID-debug-tmp.log; }
+    echo -e "\n---Last Magisk Log---\n" >> /sdcard/$MODID-debug-tmp.log
+    [ -d /cache ] && cat /cache/magisk.log >> /sdcard/$MODID-debug-tmp.log || cat /data/cache/magisk.log >> /sdcard/$MODID-debug-tmp.log
+  fi
+  echo -e "\n\n***---Unity Debug Info---***" >> /sdcard/$MODID-debug-tmp.log
+  echo -e "\n---Installed Files---\n" >> /sdcard/$MODID-debug-tmp.log
+  grep "^+* cp_ch" /sdcard/$MODID-debug.log | sed 's/.* //g' >> /sdcard/$MODID-debug-tmp.log
+  sed -i "\|$TMPDIR/|d" /sdcard/$MODID-debug-tmp.log
+  echo -e "\n---Installed Boot Scripts---\n" >> /sdcard/$MODID-debug-tmp.log
+  grep "^+* install_script" /sdcard/$MODID-debug.log | sed -e 's/.* //g' -e 's/^-.* //g' >> /sdcard/$MODID-debug-tmp.log
+  echo -e "\n---Installed Prop Files---\n" >> /sdcard/$MODID-debug-tmp.log
+  grep "^+* prop_process" /sdcard/$MODID-debug.log | sed 's/.* //g' >> /sdcard/$MODID-debug-tmp.log
+  echo -e "\n---Shell & Unity Variables---\n" >> /sdcard/$MODID-debug-tmp.log
+  (set) >> /sdcard/$MODID-debug-tmp.log
+  echo -e "\n---(Un)Install Log---\n" >> /sdcard/$MODID-debug-tmp.log
+  echo "$(cat /sdcard/$MODID-debug.log)" >> /sdcard/$MODID-debug-tmp.log
+  mv -f /sdcard/$MODID-debug-tmp.log /sdcard/$MODID-debug.log
+}
+
 cleanup() {
   cd /
   [ -d "$RD" ] && repack_ramdisk
@@ -128,33 +158,7 @@ cleanup() {
   ui_print "    *    Unity by ahrion & zackptg5 @ XDA     *"
   ui_print "    *******************************************"
   ui_print " "
-  if $DEBUG; then
-    set +x
-    echo -e "***---Device Info---***" > /sdcard/$MODID-debug-tmp.log
-    echo -e "\n---Props---\n" >> /sdcard/$MODID-debug-tmp.log
-    getprop >> /sdcard/$MODID-debug-tmp.log
-    if $MAGISK; then
-      echo -e "\n\n***---Magisk Info---***" >> /sdcard/$MODID-debug-tmp.log
-      echo -e "\n---Magisk Version---\n\n$MAGISK_VER_CODE" >> /sdcard/$MODID-debug-tmp.log
-      imageless_magisk && { echo -e "\n---Installed Modules---\n" >> /sdcard/$MODID-debug-tmp.log;
-                                          ls $NVBASE/modules >> /sdcard/$MODID-debug-tmp.log; }
-      echo -e "\n---Last Magisk Log---\n" >> /sdcard/$MODID-debug-tmp.log
-      [ -d /cache ] && cat /cache/magisk.log >> /sdcard/$MODID-debug-tmp.log || cat /data/cache/magisk.log >> /sdcard/$MODID-debug-tmp.log
-    fi
-    echo -e "\n\n***---Unity Debug Info---***" >> /sdcard/$MODID-debug-tmp.log
-    echo -e "\n---Installed Files---\n" >> /sdcard/$MODID-debug-tmp.log
-    grep "^+* cp_ch" /sdcard/$MODID-debug.log | sed 's/.* //g' >> /sdcard/$MODID-debug-tmp.log
-    sed -i "\|$TMPDIR/|d" /sdcard/$MODID-debug-tmp.log
-    echo -e "\n---Installed Boot Scripts---\n" >> /sdcard/$MODID-debug-tmp.log
-    grep "^+* install_script" /sdcard/$MODID-debug.log | sed -e 's/.* //g' -e 's/^-.* //g' >> /sdcard/$MODID-debug-tmp.log
-    echo -e "\n---Installed Prop Files---\n" >> /sdcard/$MODID-debug-tmp.log
-    grep "^+* prop_process" /sdcard/$MODID-debug.log | sed 's/.* //g' >> /sdcard/$MODID-debug-tmp.log
-    echo -e "\n---Shell & Unity Variables---\n" >> /sdcard/$MODID-debug-tmp.log
-    (set) >> /sdcard/$MODID-debug-tmp.log
-    echo -e "\n---(Un)Install Log---\n" >> /sdcard/$MODID-debug-tmp.log
-    echo "$(cat /sdcard/$MODID-debug.log)" >> /sdcard/$MODID-debug-tmp.log
-    mv -f /sdcard/$MODID-debug-tmp.log /sdcard/$MODID-debug.log
-  fi
+  $DEBUG && debug_log
   [ -d "$TMPDIR/addon/Aroma-Installer" ] && { rm -rf $TMPDIR; sleep 3; reboot recovery; } || { rm -rf $TMPDIR; exit 0; }
 }
 
