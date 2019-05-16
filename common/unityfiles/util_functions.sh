@@ -421,13 +421,13 @@ cp_ch() {
 patch_script() {
   [ -L /system/vendor ] && local VEN=/vendor
   sed -i -e "1i $SHEBANG" -e "1i SYS=$ROOT/system" -e "1i VEN=$ROOT$VEN" $1
-  for i in "ROOT" "MAGISK" "LIBDIR" "SYSOVER" "MODID" "MOUNTEDROOT" "NVBASE"; do
+  for i in "ROOT" "MAGISK" "LIBDIR" "SYSOVER" "DIRSEPOL" "MODID" "MOUNTEDROOT" "NVBASE"; do
     sed -i "4i $i=$(eval echo \$$i)" $1
   done
   if $MAGISK; then
-    sed -i -e "s|\$MODPATH|$MOUNTEDROOT/$MODID|g" -e "s|\$MOUNTPATH|$MOUNTEDROOT|g" -e "s|\$MODULEROOT|$MOUNTEDROOT|g" -e "11i INFO=$MOUNTEDROOT/$MODID/$MODID-files" $1
+    sed -i -e "s|\$MODPATH|$MOUNTEDROOT/$MODID|g" -e "s|\$MOUNTPATH|$MOUNTEDROOT|g" -e "s|\$MODULEROOT|$MOUNTEDROOT|g" -e "12i INFO=$MOUNTEDROOT/$MODID/$MODID-files" $1
   else
-    sed -i -e "s|\$MODPATH||g" -e "s|\$MOUNTPATH||g" -e "s|\$MODULEROOT||g" -e "11i INFO=$INFO" $1
+    sed -i -e "s|\$MODPATH||g" -e "s|\$MOUNTPATH||g" -e "s|\$MODULEROOT||g" -e "12i INFO=$INFO" $1
   fi
 }
 
