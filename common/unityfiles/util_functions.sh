@@ -728,11 +728,7 @@ unity_main() {
   
   # Determine mod installation status
   ui_print " "
-  if [ -d "$RD" ] && [ "$(grep "#$MODID-UnityIndicator" $RD/init.rc 2>/dev/null)" ] && [ ! -f "$MOD_VER" ]; then
-    ui_print "  ! Mod present in ramdisk but not in system!"
-    ui_print "  ! Ramdisk modifications will be uninstalled!"
-    . $TMPDIR/addon/Ramdisk-Patcher/uninstall.sh
-  elif $MAGISK && ! $SYSOVER && [ -f "/system/addon.d/$MODID-files" -o -f "/system/etc/$MODID-files" ]; then
+  if $MAGISK && ! $SYSOVER && [ -f "/system/addon.d/$MODID-files" -o -f "/system/etc/$MODID-files" ]; then
     ui_print "  ! Previous system override install detected!"
     ui_print "  ! Removing...!"
     $BOOTMODE && { ui_print "  ! Magisk manager isn't supported!"; abort "   ! Flash in TWRP !"; }
